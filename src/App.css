@@ -1,184 +1,383 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* =========================================================
+   1. VARIABLES
+   Los colores y medidas viven aquí. Para cambiar el verde de
+   toda la app, solo editas --eco.
+   ========================================================= */
+:root {
+  --bg: #000000;                      /* fondo de la página */
+  --surface: #1c1c1e;                 /* tarjetas y filas */
+  --text: #f5f5f7;                    /* texto principal */
+  --text-2: #98989d;                  /* texto secundario */
+  --line: rgba(255, 255, 255, 0.14);  /* líneas y fondos sutiles */
+  --nav-bg: rgba(0, 0, 0, 0.6);       /* menú translúcido */
+  --danger: #ff453a;                  /* rojo de eliminar */
+  --radius: 0.875rem;                 /* redondeo de tarjetas */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+  /* Colores de la marca */
+  --eco: #10b981;                     /* verde esmeralda */
+  --eco-2: #2dd4bf;                   /* verde azulado, para degradados */
+
+  /* El acento ES el verde: lo usan botones principales y campos */
+  --accent: var(--eco);
+  --accent-text: #04210f;             /* texto oscuro sobre el verde */
+
+  /* Le avisa al navegador que la página es oscura */
+  color-scheme: dark;
+
+  /* Letra del sistema (Segoe UI en Windows, San Francisco en Mac) */
+  font: 100%/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Hace que padding y borde cuenten DENTRO del ancho de un elemento */
+* { box-sizing: border-box; }
+
+/* Quita el margen de 8px que el navegador pone por defecto */
+body { margin: 0; background: var(--bg); }
+
+/* =========================================================
+   2. TIPOGRAFÍA
+   ========================================================= */
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* =========================================================
+   3. BARRA DE NAVEGACIÓN
+   ========================================================= */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav__inner {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1.125rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Nombre del proyecto, grande, con un punto verde delante */
+.nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.875rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+/* ::before crea el punto sin tocar el JSX */
+.nav__brand::before {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--eco);
+  box-shadow: 0 0 1rem color-mix(in srgb, var(--eco) 60%, transparent);
+}
+
+.nav__links { display: flex; gap: 0.5rem; }
+
+.nav__links a {
+  padding: 0.625rem 1.25rem;
+  border-radius: 999px;
+  color: var(--text-2);
+  text-decoration: none;
+  font-size: 1.125rem;
+  font-weight: 600;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.nav__links a:hover { color: var(--text); }
+
+/* NavLink agrega la clase "active" al enlace de la página actual */
+.nav__links a.active {
+  color: var(--text);
+  background: var(--line);
+}
+
+/* =========================================================
+   4. LAYOUT GENERAL
+   ========================================================= */
+.page {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+/* Cabecera de la lista: título a la izquierda, botón a la derecha */
+.page__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.page__head h1 { margin: 0; }
+
+/* Mensajes de "no hay datos" */
+.empty { color: var(--text-2); text-align: center; padding: 2rem 0; }
+
+/* =========================================================
+   5. BOTONES
+   ========================================================= */
+.btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--text);
+  background: var(--line);
+  border: 0;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 100ms ease-out,
+              background-color 150ms ease,
+              opacity 150ms ease;
+}
+
+/* Responde al instante al presionar: se encoge un 3 % */
+.btn:active { transform: scale(0.97); }
+
+/* Contorno visible solo al navegar con teclado (Tab) */
+.btn:focus-visible,
+.nav__links a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+.btn--primary { background: var(--accent); color: var(--accent-text); }
+.btn--primary:hover:not(:disabled) { opacity: 0.88; }
+.btn--danger { background: var(--danger); color: #fff; }
+.btn--ghost-danger { color: var(--danger); }
+
+/* =========================================================
+   6. LISTA DE PUNTOS
+   ========================================================= */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  animation: aparecer 300ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+/* Línea separadora solo ENTRE filas (no arriba de la primera) */
+.row + .row { border-top: 1px solid var(--line); }
+
+.row__text { display: flex; flex-direction: column; min-width: 0; }
+.row__text strong { font-weight: 600; }
+.row__text span { color: var(--text-2); font-size: 0.9375rem; }
+.row__actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+/* =========================================================
+   7. FORMULARIO (panel dentro de Puntos)
+   ========================================================= */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  animation: aparecer 300ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.card h2 {
+  margin: 0 0 1.25rem;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.field { margin-bottom: 1.25rem; }
+
+.field label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.field input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Al escribir: borde verde y un halo suave */
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.form__actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+
+/* =========================================================
+   8. ANIMACIÓN DE ENTRADA
+   Aparece subiendo 6px mientras se hace visible.
+   La usan las filas, el formulario y el Inicio.
+   ========================================================= */
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   9. INICIO: HERO CON IMPACTO
+   ========================================================= */
 .hero {
   position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
+  isolation: isolate;          /* el brillo de fondo queda detrás del texto */
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;            /* ocupa buena parte de la pantalla */
+  padding: 3rem 0;
+  text-align: center;
+}
 
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
+/* Luz verde difusa detrás del título */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(48rem, 100%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--eco) 35%, transparent) 0%,
+    transparent 65%
+  );
+  filter: blur(40px);
+  z-index: -1;
+  pointer-events: none;        /* no bloquea los clics */
+}
+
+/* Título enorme con degradado dentro de las letras */
+.hero h1 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(3rem, 10vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  text-wrap: balance;
+  background: linear-gradient(135deg, #fff 30%, var(--eco) 70%, var(--eco-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero p {
+  max-width: 34rem;
+  margin: 0 0 2.25rem;
+  color: var(--text-2);
+  font-size: clamp(1.125rem, 2.2vw, 1.375rem);
+  line-height: 1.4;
+}
+
+.hero__actions { display: flex; gap: 0.75rem; justify-content: center; }
+
+/* Botón grande con resplandor verde (solo dentro del hero) */
+.hero .btn {
+  padding: 0.875rem 2rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  box-shadow: 0 0 2rem color-mix(in srgb, var(--eco) 45%, transparent);
+}
+.hero .btn:hover { transform: translateY(-2px); }
+.hero .btn:active { transform: scale(0.97); }
+
+/* Entrada escalonada: título, texto y botón uno tras otro */
+.hero > * {
+  animation: aparecer 700ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.hero > :nth-child(2) { animation-delay: 100ms; }
+.hero > :nth-child(3) { animation-delay: 200ms; }
+
+/* =========================================================
+   10. TARJETAS DEL INICIO (para cuando agreguemos el Paso 3)
+   Todavía no se usan: no afectan nada hasta que Inicio.jsx
+   tenga la sección <section className="features">.
+   ========================================================= */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+}
+
+.feature {
+  padding: 1.5rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  animation: aparecer 500ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.feature:hover { transform: translateY(-4px); }
+.feature:nth-child(2) { animation-delay: 80ms; }
+.feature:nth-child(3) { animation-delay: 160ms; }
+
+.feature__icono { display: block; margin-bottom: 0.75rem; font-size: 1.75rem; }
+.feature h3 { margin: 0 0 0.375rem; font-size: 1.125rem; letter-spacing: -0.01em; }
+.feature p { margin: 0; color: var(--text-2); font-size: 0.9375rem; }
+
+/* =========================================================
+   11. ACCESIBILIDAD Y PANTALLAS PEQUEÑAS
+   ========================================================= */
+/* Quien tiene "reducir movimiento" activado no ve animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .row, .card, .feature, .hero > * { animation: none; }
+  .btn:active { transform: none; }
+  .hero .btn:hover, .feature:hover { transform: none; }
+  .feature { transition: none; }
+}
+
+/* Quien pidió "reducir transparencia": menú sólido y sin desenfoque */
+@media (prefers-reduced-transparency: reduce) {
+  .nav {
+    background: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+/* En celular, cada fila apila el texto y los botones */
+@media (max-width: 30rem) {
+  .row { flex-direction: column; align-items: flex-start; }
 }
